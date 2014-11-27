@@ -173,7 +173,7 @@ function moveToHome(player, sHome)
     
     player:SendMessage(cChatColor.Green .. 'Teleporting you to home "' .. a_Data.Name .. '"...')
     player:TeleportToCoords(a_Data.X, a_Data.Y, a_Data.Z)
-    if player:GetWorld():GetUUID() ~= a_Data.World then
+    if player:GetWorld():GetName() ~= a_Data.World then
         player:MoveToWorld(a_Data.World)
     end
     return true
