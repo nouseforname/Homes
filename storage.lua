@@ -50,7 +50,7 @@ function cStorage:OpenDB()
     local Homes =
     {
         "ID INTEGER PRIMARY KEY AUTOINCREMENT",
-        "Player", 
+        "UUID", 
         "Name", 
         "World", 
         "X", 
@@ -100,8 +100,8 @@ function cStorage:CheckForExisting( a_Data )
         return 0
     end
     
-    -- get count of existing homes by Player, Name and World
-    local sql = "SELECT COUNT(*) FROM " .. PluginName .. " WHERE Player='" .. a_Data.PLAYER .. "'"
+    -- get count of existing homes by UUID, Name and World
+    local sql = "SELECT COUNT(*) FROM " .. PluginName .. " WHERE UUID='" .. a_Data.UUID .. "'"
     sql = sql .. "AND World='" .. a_Data.WORLD .. "'"
     sql = sql .. " AND Name='" .. a_Data.NAME .. "'"
     self:DBExec(sql, getResult) 
@@ -122,7 +122,7 @@ function cStorage:GetTotalCount( a_Data )
     end
 
     -- get Count of all Player homes in given world
-    local sql = "SELECT COUNT(*) FROM " .. PluginName .. " WHERE Player='" .. a_Data.PLAYER .. "'"
+    local sql = "SELECT COUNT(*) FROM " .. PluginName .. " WHERE UUID='" .. a_Data.UUID .. "'"
     sql = sql .. " AND World='" .. a_Data.WORLD .. "';"
     self:DBExec(sql, getResult) 
     return count
@@ -133,22 +133,22 @@ end
 function cStorage:SetHome( a_Data )
 
     local sql = "INSERT or REPLACE INTO " .. PluginName .. " "
-    sql = sql .. "( ID, Player, Name, World, X, Y, Z ) "
+    sql = sql .. "( ID, UUID, Name, World, X, Y, Z ) "
     sql = sql .. "VALUES ((SELECT ID FROM " .. PluginName .. " WHERE "
-    sql = sql .. "Player='" .. a_Data.PLAYER .. "' AND Name='" .. a_Data.NAME .. "' AND World='" .. a_Data.WORLD .. "' ), "
-    sql = sql .. "'" .. a_Data.PLAYER .. "', '" .. a_Data.NAME .. "', '" .. a_Data.WORLD .. "', "
+    sql = sql .. "UUID='" .. a_Data.UUID .. "' AND Name='" .. a_Data.NAME .. "' AND World='" .. a_Data.WORLD .. "' ), "
+    sql = sql .. "'" .. a_Data.UUID .. "', '" .. a_Data.NAME .. "', '" .. a_Data.WORLD .. "', "
     sql = sql .. a_Data.X .. ", " .. a_Data.Y .. ", " .. a_Data.Z .. ");"
     
     return self:DBExec(sql)
 end
 
 
-function cStorage:GetHomeList( player )
+function cStorage:GetHomeList( UUID )
     
     local a_List = {}
-    local sql = "SELECT * FROM " .. PluginName .. " WHERE Player=?"
+    local sql = "SELECT * FROM " .. PluginName .. " WHERE UUID=?"
     local stmt = self.DB:prepare(sql)
-    stmt:bind(1, player)
+    stmt:bind(1, UUID)
     for rowData in stmt:nrows(sql) do
         a_List[#a_List+1] = rowData
     end
@@ -158,9 +158,9 @@ end
 
 function cStorage:GetHome( o_player )
     
-    local sql = "SELECT * FROM " .. PluginName .. " WHERE Player=? AND Name=?"
+    local sql = "SELECT * FROM " .. PluginName .. " WHERE UUID=? AND Name=?"
     local stmt = self.DB:prepare(sql)
-    stmt:bind(1, o_player.PLAYER)
+    stmt:bind(1, o_player.UUID)
     stmt:bind(2, o_player.NAME)
     for rowData in stmt:nrows(sql) do
         return rowData
@@ -170,10 +170,10 @@ end
 
 function cStorage:DeleteHome( o_player )
     
-    -- delete given player home
-    local sql = "DELETE FROM " .. PluginName .. " WHERE Player=? AND Name=?"
+    -- delete given UUID home
+    local sql = "DELETE FROM " .. PluginName .. " WHERE UUID=? AND Name=?"
     local stmt = self.DB:prepare(sql)
-    stmt:bind(1, o_player.PLAYER)
+    stmt:bind(1, o_player.UUID)
     stmt:bind(2, o_player.NAME)
     local ErrCode = stmt:step(sql)
     if (ErrCode ~= sqlite3.DONE) then

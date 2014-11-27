@@ -54,9 +54,14 @@ function Initialize(Plugin)
     PLUGIN:SetName(PluginName)
     PLUGIN:SetVersion(1)
     
-    PluginManager = cRoot:Get():GetPluginManager()
-    PluginManager:BindCommand("/home", "homes.home", HandleHomeCommand, " - Handle commands like [list|set|delete|help] or teleport!")
+    -- PluginManager = cRoot:Get():GetPluginManager()
+    -- PluginManager:BindCommand("/home", "homes.home", HandleHomeCommand, " - Handle commands like [list|set|delete|help] or teleport!")
     
+	-- Use the InfoReg shared library to process the Info.lua file:
+	dofile(cPluginManager:GetPluginsPath() .. "/InfoReg.lua")
+	RegisterPluginInfoCommands()
+	RegisterPluginInfoConsoleCommands()
+	
     InitializeConfig()
     
     if (not(InitializeStorage())) then
@@ -87,75 +92,79 @@ function InitializeConfig()
 end
 
 
--- handle all commands and call sub functions to execute
 function HandleHomeCommand(args, player)
     
     -- get args
     if #args == 1 then
-        
         -- move player to default home
         return moveToHome(player, "default")
-    
-    elseif args[2] == 'list' then
-        
-        if #args >= 3 then
-            player:SendMessage(cChatColor.Red .. 'To many arguments for listing... abort command!!!')
-            return true
-        else 
-            -- list all player homes
-            return listHomes(player)
-        end
-
-    elseif args[2] == 'help' then
-        
-        if #args >= 3 then
-            player:SendMessage(cChatColor.Red .. 'To many arguments for help... abort command!!!')
-            return true
-        else 
-            -- display plugin help
-            return showHelp(player)
-        end
-
-    elseif args[2] == 'set' then
-        
-        if #args >= 4 then
-            player:SendMessage(cChatColor.Red .. 'To many arguments to set home... abort command!!!')
-            return true
-        elseif #args == 3 then
-            -- set given home 
-            return setHome(player, string.gsub(args[3], "%s", ""))
-        else
-            -- set default home
-            return setHome(player, "default")
-        end
-    
-    elseif args[2] == 'delete' then
-        
-        if #args >= 4 then
-            player:SendMessage(cChatColor.Red .. 'To many arguments to delete home... abort command!!!')
-            return true
-        elseif #args == 3 then
-            -- delete given home
-            return deleteHome(player, string.gsub(args[3], "%s", ""))
-        else
-            -- this is not allowed
-            player:SendMessage(cChatColor.Red .. 'Name missing... abort command!!!')
-            return true
-        end
-
-    elseif #args == 2 then
+	elseif #args == 2 then
         -- move player to given home if exist 
         return moveToHome(player, string.gsub(args[2], "%s", ""))
     end
-
     return false
+end
+
+
+function HandleHomeCommandSet(args, player)
+	
+	if #args >= 4 then
+		player:SendMessage(cChatColor.Red .. 'To many arguments to set home... abort command!!!')
+		return true
+	elseif #args == 3 then
+		-- set given home 
+		return setHome(player, string.gsub(args[3], "%s", ""))
+	else
+		-- set default home
+		return setHome(player, "default")
+	end
+end
+
+
+function HandleHomeCommandList(args, player)
+	
+	if #args >= 3 then
+		player:SendMessage(cChatColor.Red .. 'To many arguments for listing... abort command!!!')
+		return true
+	else 
+		-- list all player homes
+		return listHomes(player)
+	end
+end
+
+
+function HandleHomeCommandHelp(args, player)
+
+	if #args >= 3 then
+		player:SendMessage(cChatColor.Red .. 'To many arguments for help... abort command!!!')
+		return true
+	else 
+		-- display plugin help
+		return showHelp(player)
+	end
+end
+
+
+function HandleHomeCommandDelete(args, player)
+
+	if #args >= 4 then
+		player:SendMessage(cChatColor.Red .. 'To many arguments to delete home... abort command!!!')
+		return true
+	elseif #args == 3 then
+		-- delete given home
+		return deleteHome(player, string.gsub(args[3], "%s", ""))
+	else
+		-- this is not allowed
+		player:SendMessage(cChatColor.Red .. 'Name missing... abort command!!!')
+		return true
+	end
 end
 
 
 -- move player to given home
 function moveToHome(player, sHome)
 
-    local a_Data = g_Storage:GetHome({PLAYER=player:GetName(), NAME=sHome})
+    local a_Data = g_Storage:GetHome({PLAYER=player:GetUUID(), NAME=sHome})
     if a_Data == nil then
         
         player:SendMessage(cChatColor.Red .. 'Home doesn\'t exist...')
@@ -175,24 +184,16 @@ end
 function setHome(player, sHome)
 
     local a_data = {}
-    a_data.PLAYER   = player:GetName()
+    a_data.UUID   	= player:GetUUID()
     a_data.NAME     = sHome
     a_data.WORLD    = player:GetWorld():GetName()
     a_data.X        = player:GetPosX()
     a_data.Y        = player:GetPosY()
     a_data.Z        = player:GetPosZ()
-    a_data.RANK     = "Default"
-    a_data.LIMIT    = g_Config.LIMITUSER
-    
-    -- get PLayerUUID for rank recognition
-    -- local Ranks = cRankManager:GetAllRanks()
-    local PlayerUUID =  cMojangAPI:GetUUIDFromPlayerName(a_data.PLAYER)
-    if ((PlayerUUID ~= nil) and (string.len(PlayerUUID) == 32)) then
-        a_data.RANK = cRankManager:GetPlayerRankName(PlayerUUID)
-        a_data.LIMIT = GetRankLimit(a_data.RANK)
-    end
+	a_data.RANK 	= cRankManager:GetPlayerRankName(a_data.UUID)
+	a_data.LIMIT 	= GetRankLimit(a_data.RANK)
 
-
+	
     -- check for permission and existing home
     local bExists = g_Storage:CheckForExisting(a_data)
     if not bExists then
@@ -226,7 +227,7 @@ end
 -- list all player homes
 function listHomes(player)
     
-    local a_List = g_Storage:GetHomeList(player:GetName())
+    local a_List = g_Storage:GetHomeList(player:GetUUID())
     player:SendMessage(cChatColor.Green .. "You own " .. #a_List .. " homes!")
     for i=1, #a_List do
         local msg = cChatColor.Green .. i .. ". " .. a_List[i].Name .. " @ " .. a_List[i].World
@@ -238,7 +239,7 @@ end
 
 -- delete given home
 function deleteHome(player, sHome)
-    local res = g_Storage:DeleteHome({PLAYER=player:GetName(), NAME=sHome})
+    local res = g_Storage:DeleteHome({PLAYER=player:GetUUID(), NAME=sHome})
     if res then
         player:SendMessage(cChatColor.Green .. "Home " .. sHome .. " successfully deleted!!!")
     end
