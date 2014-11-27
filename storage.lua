@@ -43,7 +43,7 @@ function cStorage:OpenDB()
     local ErrCode, ErrMsg;
     self.DB, ErrCode, ErrMsg = sqlite3.open( PluginName .. ".sqlite" );
     if (self.DB == nil) then
-        LOGWARNING(PluginPrefix .. "Cannot open ProtectionAreas.sqlite, error " .. ErrCode .. " (" .. ErrMsg ..")");
+        LOGWARNING(PluginPrefix .. "Cannot open " .. PluginName .. ".sqlite, error " .. ErrCode .. " (" .. ErrMsg ..")");
         return false;
     end
     
@@ -149,7 +149,7 @@ function cStorage:GetHomeList( UUID )
     local sql = "SELECT * FROM " .. PluginName .. " WHERE UUID=?"
     local stmt = self.DB:prepare(sql)
     stmt:bind(1, UUID)
-    for rowData in stmt:nrows(sql) do
+    for rowData in stmt:nrows() do
         a_List[#a_List+1] = rowData
     end
     return a_List
@@ -162,7 +162,7 @@ function cStorage:GetHome( o_player )
     local stmt = self.DB:prepare(sql)
     stmt:bind(1, o_player.UUID)
     stmt:bind(2, o_player.NAME)
-    for rowData in stmt:nrows(sql) do
+    for rowData in stmt:nrows() do
         return rowData
     end
 end
@@ -175,12 +175,18 @@ function cStorage:DeleteHome( o_player )
     local stmt = self.DB:prepare(sql)
     stmt:bind(1, o_player.UUID)
     stmt:bind(2, o_player.NAME)
-    local ErrCode = stmt:step(sql)
-    if (ErrCode ~= sqlite3.DONE) then
-        return false;
+    local res = stmt:step()
+    if res ~= sqlite3.DONE then
+        return false
     end
     return true;
 end
 
 
-
+function cStorage:RecreateDB()
+    
+    -- delete table
+    local sql = "DROP TABLE " .. PluginName
+    self:DBExec(sql)
+    return self:OpenDB()
+end

@@ -5,12 +5,12 @@
 
 g_PluginInfo =
 {
-	Name = "Homes"
-	Date = "2014-11-27"
-	SourceLocation = "https://github.com/nouseforname/Homes"
+	Name = "Homes",
+	Date = "2014-11-27",
+	SourceLocation = "https://github.com/nouseforname/Homes",
 	Description = 
 	[[
-		Provides functions to create, request and list and delete player homes with names and configurable limit.
+		Provides functions to create, request, list and delete player homes with names and configurable limit.
 	]],
 	
 	AdditionalInfo =
@@ -34,46 +34,44 @@ g_PluginInfo =
 	{
 		["/home"] =
 		{
-			HelpString = "Usage /home [[name]|set|list|delete|help] [name]"
-			Permission = "homes.home"
-			Alias = "/hm"
-			Handler = HandleHomeCommand
-			ParameterCombinations =
+			HelpString = "Usage /home <goto|set|list|delete|help> [name]",
+			Permission = "homes.home",
+			Alias = "/~",
+			Handler = nil,
+
+            Subcommands =
 			{
-				{
-					Params = "",
-					Help = "Ports you to the default home"
-				}
-				{
-					Params = "HomeName",
-					Help = "Ports you to the given home"
-				}
-			},
-			
-			SubCommands =
-			{
+                goto =
+                {
+                    HelpString = "Move to given home",
+                    Permission = "",
+                    Alias = "g",
+                    Handler = HandleHomeCommand,
+                    
+                }, -- goto 
+                
 				list =
 				{
 					HelpString = "List all player homes",
 					Permission = "",
 					Alias = "l",
-					Handler = HandleHomeCommandList
-				} -- list
+					Handler = HandleHomeCommandList,
+				}, -- list
 				
 				help = 
 				{
 					HelpString = "Show help",
 					Permission = "",
 					Alias = "h",
-					Handler = HandleHomeCommandHelp
-				} -- help
+					Handler = HandleHomeCommandHelp,
+				}, -- help
 				
-				delete = 
+				del = 
 				{
 					HelpString = "Delete the given home",
 					Permission = "",
 					Alias = "d",
-					Handler = HandleHomeCommandDelete
+					Handler = HandleHomeCommandDelete,
 					ParameterCombinations =
 					{
 						{
@@ -81,15 +79,14 @@ g_PluginInfo =
 							Help = "Key in the name of a existing home",
 						},
 					},
-				
-				} -- delete
+				}, -- delete
 				
 				set =
 				{
-					HelpString = "",
+					HelpString = "Save a position as player home",
 					Permission = "",
 					Alias = "s",
-					Handler = HandleHomeCommandSet
+					Handler = HandleHomeCommandSet,
 					ParameterCombinations =
 					{
 						{
@@ -101,17 +98,16 @@ g_PluginInfo =
 							Help = "Set the actual position as home [HomeName]",
 						},
 					},
-				} -- set
-			
+				}, -- set
 			}
 		}
 	}, -- Commands
 	
 	ConsoleCommands = 
 	{
-		inithomes =
+		dropTableHomes =
 		{
-			HelpString = "Deletes and recreated the database"
+			HelpString = "Deletes and recreated the database...",
 			Handler = HandleConCommandReInit,
 		}
 	
@@ -121,7 +117,7 @@ g_PluginInfo =
 	{
 		["homes.home"] =
 		{
-			Description = "Allows the player to save and delete home postitions for teleporting"
+			Description = "Allows the player to save and delete home postitions for teleporting",
 			RecommendedGroups = "*"
 		}
 	}, -- Permissions

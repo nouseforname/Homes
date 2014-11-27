@@ -1,35 +1,38 @@
+
 Homes
 =====
 
 A simple plugin for https://github.com/mc-server.  
 
 ---
--- * plugin homes.lua  
-  
--- * provides functions to create, request and list and delete player homes with names and configurable limit  
-  
--- * permission "homes.home"  
-  
--- * Usage /home [[name]|set|list|delete|help] [name]  
--- * /home => port you to your default home  
--- * /home myHome => port you to home 'myHome'  
--- * /home set => set the actual position as default home  
--- * /home set myHome => set the actual position as 'myHome'  
--- * /home list => list all your home by name and world  
--- * /home delete myHome => delete 'myHome'  
--- * /home help => shows this help  
-  
-  
--- * Configurable limit of homes for each rank. 0=infinite  
--- * Homes.ini:  
--- * [Limits]  
--- * Default=3  
--- * VIP=5  
--- * Operator=10  
--- * Admin=0  
-  
-  
+
+Provides functions to create, request, list and delete player homes with names and configurable limit. 	
+
+# Configuration
+The configuration is stored in "Homes.ini" and gives the max numbers of homes positions per user rank.
+
+[Limits] Default=3 VIP=5 Operator=10 Admin=0 			
+
+# Commands
+
+### General
+| Command | Permission | Description |
+| ------- | ---------- | ----------- |
+|/home | homes.home | Usage /home <goto|set|list|delete|help> [name]|
+|/home del |  | Delete the given home|
+|/home goto |  | Move to given home|
+|/home help |  | Show help|
+|/home list |  | List all player homes|
+|/home set |  | Save a position as player home|
+
+
+
+# Permissions
+| Permissions | Description | Commands | Recommended groups |
+| ----------- | ----------- | -------- | ------------------ |
+| homes.home | Allows the player to save and delete home postitions for teleporting | `/home`, `/~` | * |
+
+
+
 -- * created by nouseforname @ http://nouseforname.de  
 -- * november 2014
-
-

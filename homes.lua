@@ -6,9 +6,9 @@
 
 -- * permission "homes.home"
 
--- * Usage /home [[name]|set|list|delete|help] [name]
--- * /home => port you to your default home
--- * /home myHome => port you to home 'myHome'
+-- * Usage /home [goto|set|list|delete|help] [name]
+-- * /home goto => port you to your default home
+-- * /home goto myHome => port you to home 'myHome'
 -- * /home set => set the actual position as default home
 -- * /home set myHome => set the actual position as 'myHome'
 -- * /home list => list all your home by name and world
@@ -93,14 +93,14 @@ end
 
 
 function HandleHomeCommand(args, player)
-    
+
     -- get args
-    if #args == 1 then
+    if #args == 2 then
         -- move player to default home
         return moveToHome(player, "default")
-	elseif #args == 2 then
+	elseif #args == 3 then
         -- move player to given home if exist 
-        return moveToHome(player, string.gsub(args[2], "%s", ""))
+        return moveToHome(player, string.gsub(args[3], "%s", ""))
     end
     return false
 end
@@ -160,11 +160,19 @@ function HandleHomeCommandDelete(args, player)
 	end
 end
 
+function HandleConCommandReInit()
+    
+    return g_Storage:RecreateDB()
+end
+
 
 -- move player to given home
 function moveToHome(player, sHome)
 
-    local a_Data = g_Storage:GetHome({PLAYER=player:GetUUID(), NAME=sHome})
+    local a_Data = g_Storage:GetHome({UUID=player:GetUUID(), NAME=sHome})
+    
+    -- DebugTable(a_Data)
+    
     if a_Data == nil then
         
         player:SendMessage(cChatColor.Red .. 'Home doesn\'t exist...')
@@ -239,7 +247,8 @@ end
 
 -- delete given home
 function deleteHome(player, sHome)
-    local res = g_Storage:DeleteHome({PLAYER=player:GetUUID(), NAME=sHome})
+    
+    local res = g_Storage:DeleteHome({UUID=player:GetUUID(), NAME=sHome})
     if res then
         player:SendMessage(cChatColor.Green .. "Home " .. sHome .. " successfully deleted!!!")
     end
@@ -250,15 +259,14 @@ end
 -- display plugin help
 function showHelp(player)
     
-    -- <argument> [option]
-    player:SendMessage(cChatColor.Green .. "Usage /home [[name]|set|list|help] [name] ")
-    player:SendMessage(cChatColor.Green .. "/home => port you to your default home")
-    player:SendMessage(cChatColor.Green .. "/home myHome => port you to home 'myHome'")
-    player:SendMessage(cChatColor.Green .. "/home set => set the actual position as default home")
-    player:SendMessage(cChatColor.Green .. "/home set myHome => set the actual position as 'myHome'")
-    player:SendMessage(cChatColor.Green .. "/home list => list all your home by name and world")
-    player:SendMessage(cChatColor.Green .. "/home delete myHome => deletes 'myHome'")
-    player:SendMessage(cChatColor.Green .. "/home help => shows this help")
+    player:SendMessage(cChatColor.Yellow .. "[INFO] " ..  cChatColor.White .. "Usage /~ < Goto | Set | List | Delete | Help > [name] ")
+    player:SendMessage(cChatColor.Yellow .. "[INFO] " ..  cChatColor.Green .. "/~ g => port you to your default home")
+    player:SendMessage(cChatColor.Yellow .. "[INFO] " ..  cChatColor.Green .. "/~ g myHome => port you to home 'myHome'")
+    player:SendMessage(cChatColor.Yellow .. "[INFO] " ..  cChatColor.Green .. "/~ s => set the actual position as default home")
+    player:SendMessage(cChatColor.Yellow .. "[INFO] " ..  cChatColor.Green .. "/~ s myHome => set the actual position as 'myHome'")
+    player:SendMessage(cChatColor.Yellow .. "[INFO] " ..  cChatColor.Green .. "/~ l => list all your home by name and world")
+    player:SendMessage(cChatColor.Yellow .. "[INFO] " ..  cChatColor.Green .. "/~ d myHome => deletes 'myHome'")
+    player:SendMessage(cChatColor.Yellow .. "[INFO] " ..  cChatColor.Green .. "/~ h => shows this help")
     
     return true
 end
