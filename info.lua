@@ -34,12 +34,16 @@ g_PluginInfo =
 	{
 		["/home"] =
 		{
-			HelpString = "Ports you to your default home | Usage /home [[name]|set|list|delete|help] [name]"
+			HelpString = "Usage /home [[name]|set|list|delete|help] [name]"
 			Permission = "homes.home"
 			Alias = "/hm"
-			Handler = HandleHomeCmdPort
+			Handler = HandleHomeCommand
 			ParameterCombinations =
 			{
+				{
+					Params = "",
+					Help = "Ports you to the default home"
+				}
 				{
 					Params = "HomeName",
 					Help = "Ports you to the given home"
@@ -66,7 +70,7 @@ g_PluginInfo =
 				
 				delete = 
 				{
-					HelpString = "",
+					HelpString = "Delete the given home",
 					Permission = "",
 					Alias = "d",
 					Handler = HandleHomeCommandDelete
@@ -82,8 +86,22 @@ g_PluginInfo =
 				
 				set =
 				{
-					
-				}
+					HelpString = "",
+					Permission = "",
+					Alias = "s",
+					Handler = HandleHomeCommandSet
+					ParameterCombinations =
+					{
+						{
+							Params = "",
+							Help = "Set the actual position as home [default]",
+						},
+						{
+							Params = "HomeName",
+							Help = "Set the actual position as home [HomeName]",
+						},
+					},
+				} -- set
 			
 			}
 		}
