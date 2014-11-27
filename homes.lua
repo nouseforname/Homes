@@ -54,9 +54,14 @@ function Initialize(Plugin)
     PLUGIN:SetName(PluginName)
     PLUGIN:SetVersion(1)
     
-    PluginManager = cRoot:Get():GetPluginManager()
-    PluginManager:BindCommand("/home", "homes.home", HandleHomeCommand, " - Handle commands like [list|set|delete|help] or teleport!")
+    -- PluginManager = cRoot:Get():GetPluginManager()
+    -- PluginManager:BindCommand("/home", "homes.home", HandleHomeCommand, " - Handle commands like [list|set|delete|help] or teleport!")
     
+	-- Use the InfoReg shared library to process the Info.lua file:
+	dofile(cPluginManager:GetPluginsPath() .. "/InfoReg.lua")
+	RegisterPluginInfoCommands()
+	RegisterPluginInfoConsoleCommands()
+	
     InitializeConfig()
     
     if (not(InitializeStorage())) then
