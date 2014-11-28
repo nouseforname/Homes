@@ -1,10 +1,4 @@
 
-Homes
-=====
-
-A simple plugin for https://github.com/mc-server.  
-
----
 
 Provides functions to create, request, list and delete player homes with names and configurable limit. 	
 
