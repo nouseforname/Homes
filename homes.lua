@@ -52,7 +52,7 @@ function Initialize(Plugin)
     PLUGIN = Plugin
     
     PLUGIN:SetName(PluginName)
-    PLUGIN:SetVersion(1)
+    PLUGIN:SetVersion(2)
     
     -- PluginManager = cRoot:Get():GetPluginManager()
     -- PluginManager:BindCommand("/home", "homes.home", HandleHomeCommand, " - Handle commands like [list|set|delete|help] or teleport!")
@@ -79,15 +79,24 @@ end
 function InitializeConfig()
     
     local g_ini = cIniFile()
-    g_ini:ReadFile(PluginName .. ".ini");
+    iniFile = PluginName .. ".ini"
+    key = "Limits"
+    g_ini:ReadFile(iniFile);
+    if not cFile:Exists(iniFile) then
+        
+        -- home limits for each ranking, 
+        g_Config.LIMITUSER  = g_ini:GetValueSetI(key, "Default", 3);
+        g_Config.LIMITVIP   = g_ini:GetValueSetI(key, "VIP", 5);
+        g_Config.LIMITOP    = g_ini:GetValueSetI(key, "Operator", 10);
+        g_Config.LIMITADMIN = g_ini:GetValueSetI(key, "Admin", 0);
     
-    -- home limits for each ranking, 
-    g_Config.LIMITUSER  = g_ini:GetValueSetI("Limits", "Default", 3);
-    g_Config.LIMITVIP   = g_ini:GetValueSetI("Limits", "VIP", 5);
-    g_Config.LIMITOP    = g_ini:GetValueSetI("Limits", "Operator", 10);
-    g_Config.LIMITADMIN = g_ini:GetValueSetI("Limits", "Admin", 0);
-    
-    g_ini:WriteFile(PluginName .. ".ini");
+        g_ini:WriteFile(iniFile);
+    else
+        
+        for i = 0, g_ini:GetNumValues(key)-1 do
+            g_Config[g_ini:GetValueName(key, i)] = g_ini:GetValue(key, g_ini:GetValueName(key, i))
+        end
+    end
     
 end
 
@@ -171,8 +180,6 @@ function moveToHome(player, sHome)
 
     local a_Data = g_Storage:GetHome({UUID=player:GetUUID(), NAME=sHome})
     
-    -- DebugTable(a_Data)
-    
     if a_Data == nil then
         
         player:SendMessage(cChatColor.Red .. 'Home doesn\'t exist...')
@@ -198,10 +205,9 @@ function setHome(player, sHome)
     a_data.X        = player:GetPosX()
     a_data.Y        = player:GetPosY()
     a_data.Z        = player:GetPosZ()
-	a_data.RANK 	= cRankManager:GetPlayerRankName(a_data.UUID)
-	a_data.LIMIT 	= GetRankLimit(a_data.RANK)
+    a_data.LIMIT 	= tonumber(g_Config[cRankManager:GetPlayerRankName(a_data.UUID)])
 
-	
+
     -- check for permission and existing home
     local bExists = g_Storage:CheckForExisting(a_data)
     if not bExists then
@@ -234,7 +240,7 @@ end
 
 -- list all player homes
 function listHomes(player)
-    
+
     local a_List = g_Storage:GetHomeList(player:GetUUID())
     player:SendMessage(cChatColor.Green .. "You own " .. #a_List .. " homes!")
     for i=1, #a_List do
@@ -269,21 +275,6 @@ function showHelp(player)
     player:SendMessage(cChatColor.Yellow .. "[INFO] " ..  cChatColor.Green .. "/~ h => shows this help")
     
     return true
-end
-
-
--- get config values
-function GetRankLimit(rank)
-
-    if rank == 'VIP' then
-        return g_Config.LIMITVIP
-    elseif rank == 'Operator' then
-        return g_Config.LIMITOP
-    elseif rank == 'Admin' then
-        return g_Config.LIMITADMIN
-    end
-    
-    return g_Config.LIMITUSER
 end
 
 
