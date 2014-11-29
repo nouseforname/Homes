@@ -1,17 +1,15 @@
 
-Homes
-=====
-
-A simple plugin for https://github.com/mc-server.  
-
----
 
 Provides functions to create, request, list and delete player homes with names and configurable limit. 	
 
 # Configuration
 The configuration is stored in "Homes.ini" and gives the max numbers of homes positions per user rank.
 
-[Limits] Default=3 VIP=5 Operator=10 Admin=0 			
+[Limits]   
+Default=3  
+VIP=5  
+Operator=10  
+Admin=0   	 		
 
 # Commands
 
