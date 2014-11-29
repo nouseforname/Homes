@@ -92,9 +92,9 @@ function InitializeConfig()
     
         g_ini:WriteFile(iniFile);
     else
-        
-        for i = 0, g_ini:GetNumValues(key)-1 do
-            g_Config[g_ini:GetValueName(key, i)] = g_ini:GetValue(key, g_ini:GetValueName(key, i))
+        local keyID = g_ini:FindKey(key)
+        for i = 0, g_ini:GetNumValues(keyID) - 1 do
+            g_Config[g_ini:GetValueName(keyID, i)] = g_ini:GetValue(keyID, i)
         end
     end
     
